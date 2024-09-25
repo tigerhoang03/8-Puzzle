@@ -1,0 +1,1 @@
+#changing the goal state will only need you to change the successor function and goal state of course

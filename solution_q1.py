@@ -56,12 +56,12 @@ def getSuccessors(state):
     #Helper function to perform the swap and return new state and action
     def swap(newRow, newCol, direction):
         newState = state[:]  #Create a copy of the curr state
-        oldIndex = row * 3 + col  #curr state blank index
-        newIndex = newRow * 3 + newCol  #New state blank index
+        oldIdx = row * 3 + col  #curr state blank index
+        newIdx = newRow * 3 + newCol  #New state blank index
 
-        #The tile being moved is the one at newIndex
-        tileMoved = newState[newIndex]
-        newState[oldIndex], newState[newIndex] = newState[newIndex], newState[oldIndex]
+        #The tile being moved is the one at newIdx
+        tileMoved = newState[newIdx]
+        newState[oldIdx], newState[newIdx] = newState[newIdx], newState[oldIdx]
 
         action = f"{tileMoved}{direction}"
 
@@ -167,11 +167,11 @@ def uniformCostSearch(initialState, goalState):
 def manhattanDistance(state, goalState):
     distance = 0
     for i in range(1, 9):  #Ignore 0 (blank space)
-        currIndex = state.index(i)
-        goalIndex = goalState.index(i)
+        currIdx = state.index(i)
+        goalIdx = goalState.index(i)
      
-        currRow, currCol = currIndex // 3, currIndex % 3
-        goalRow, goalCol = goalIndex // 3, goalIndex % 3
+        currRow, currCol = currIdx // 3, currIdx % 3
+        goalRow, goalCol = goalIdx // 3, goalIdx % 3
         
         distance += abs(currRow - goalRow) + abs(currCol - goalCol)
     return distance
@@ -180,10 +180,10 @@ def manhattanDistance(state, goalState):
 def straightLineDistance(state, goalState):
     distance = 0
     for i in range(1, 9): 
-        currIndex = state.index(i)
-        goalIndex = goalState.index(i)
-        currRow, currCol = currIndex // 3, currIndex % 3
-        goalRow, goalCol = goalIndex // 3, goalIndex % 3
+        currIdx = state.index(i)
+        goalIdx = goalState.index(i)
+        currRow, currCol = currIdx // 3, currIdx % 3
+        goalRow, goalCol = goalIdx // 3, goalIdx % 3
         #Euclidean distance between the curr position and goal position
         distance += math.sqrt((currRow - goalRow) ** 2 + (currCol - goalCol) ** 2)
     return distance

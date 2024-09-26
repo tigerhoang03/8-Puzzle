@@ -1,54 +1,266 @@
+import heapq  #For the priority queue
+from collections import deque
+import math  #For square root calculation (Euclidean distance)
+
 #Andrew Hoang ath5428
-#plan: read the input.txt file and turn it into a 2d list
-#similarly the goal state can be the same too
+#Plan: read the input.txt file and turn it into a 2D list
+#Similarly, the goal state can be the same too
 
-#according to the textbook goal formulation is the first step so our goalstate is:
-# goalState = (0, 1, 2, 3, 4, 5, 6, 7, 8)
-
-#next we need to define the problem
-#inital state -> taken care of by reading the file in and making an inital state representation
-#actions -> taken care of by possMoves function which provides all possible moves 
-#successor function -> apart of the possMoves fn.
 """---------------------------------------------------------------------------------------------------------------------------"""
 
-#data type for the search tree
+#Data type for the search tree
 class Node:
-    def __init__(self, startState, parent=None): 
-        self.startState = startState 
-        self.parent= parent
+    def __init__(self, state, parent=None, action=None, cost=0, heuristic=0): 
+        self.state = state 
+        self.parent = parent
+        self.action = action
+        self.cost = cost  #Cost to reach this node (g)
+        self.heuristic = heuristic  #Heuristic estimate to goal (h)
+        self.totalCost = cost + heuristic  #Total cost (f = g + h)
 
-"""below is NOT apart of the class"""
+    #Comparator for the priority queue
+    def __lt__(self, other):
+        return self.totalCost < other.totalCost
+
+"""Below is NOT part of the class"""
 
 def readFile(file):
     with open(file, 'r') as file:
-        #reads the one input line from input.txt
+        #Reads the one input line from input.txt
         line = file.readline().strip()
         
     elements = line.split(',')
-    initalState = []
+    initialState = []
 
     for elem in elements:        
         if elem == '_':
-            initalState.append(0)            
+            initialState.append(0)            
         else:
-            initalState.append(int(elem))
-            
-    return initalState #jsut to ensure immutability
+            initialState.append(int(elem))
+                
+    return initialState  
 
-#Note: these coordinates are zero based  
-def coord(startState):#use this to figure out the coordinates of the blank square as from there we can figure out what can move
-    row = startState.index(0) // 3 #figures out the index and does floor division (zero based indexing clutches yet)
-    column = startState.index(0) % 3 #will return the 'remainder' or the column position
+#Note: these coordinates are zero-based  
+def getCoord(startState):
+    #Use this to figure out the coordinates of the blank square as from there we can figure out what can move
+    row = startState.index(0) // 3  #row index calc
+    column = startState.index(0) % 3  #Will return the 'remainder' or the column position
     return row, column
-    
-#we now need to generate the valid moves from the current state and return them
-#each element in the moves array would represent one new state since at each step we can only move one direction
-def moves():
-    moves = []
-    
+        
+#We now need to generate the valid moves from the curr state and return them
+#Each element in the moves array would represent one new state since at each step we can only move one direction
+def getSuccessors(state):
+    moves = []  #Will store the possible states and the moves that will get you there from the curr state
+    row, col = getCoord(state)
 
-goalState = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-if __name__ == "__main__":
-    startState = readFile("input.txt")
-    print(coord(startState))
+    #Helper function to perform the swap and return new state and action
+    def swap(newRow, newCol, direction):
+        newState = state[:]  #Create a copy of the curr state
+        oldIndex = row * 3 + col  #curr state blank index
+        newIndex = newRow * 3 + newCol  #New state blank index
+
+        #The tile being moved is the one at newIndex
+        tileMoved = newState[newIndex]
+        newState[oldIndex], newState[newIndex] = newState[newIndex], newState[oldIndex]
+
+        action = f"{tileMoved}{direction}"
+
+        return newState, action
+
+    #Generate possible moves with corresponding actions
+    if row < 2:  
+        moves.append(swap(row + 1, col, 'U'))  #up
+    if row > 0:  
+        moves.append(swap(row - 1, col, 'D'))  #down
+    if col < 2:  
+        moves.append(swap(row, col + 1, 'L'))  #left
+    if col > 0:  
+        moves.append(swap(row, col - 1, 'R'))  #right
+    return moves 
+
+"""BELOW ARE THE ALGOS."""
+
+#reconstruct the path and actions
+def reconstructPath(goalNode):
+    actions = []
+    currNode = goalNode
     
+    while currNode.parent is not None:
+        actions.append(currNode.action)
+        currNode = currNode.parent
+
+    actions.reverse()
+    return actions
+
+#DFS implementation
+def dfs(initialState, goalState):
+    initialNode = Node(initialState)
+    stack = [initialNode]
+    visited = set()
+    expanded = 0   
+
+    while stack:
+        currNode = stack.pop()  #Using stack (LIFO)
+        currState = currNode.state
+
+        if currState == goalState: #check for completion
+            return currNode, expanded 
+        visited.add(tuple(currState))
+        for successorState, action in getSuccessors(currState):
+            if tuple(successorState) not in visited:
+                successorNode = Node(successorState, parent=currNode, action=action)
+                stack.append(successorNode)
+        expanded += 1   
+
+    return None, expanded   
+
+#BFS implementation
+def bfs(initialState, goalState):
+    initialNode = Node(initialState)
+    queue = deque([initialNode])  #Use deque for beter FIFO queue
+    visited = set()
+    expanded = 0   
+
+    while queue:
+        currNode = queue.popleft() 
+        currState = currNode.state
+        
+        if currState == goalState:
+            return currNode, expanded  #Return the goal node and number of expansions
+        
+        visited.add(tuple(currState))
+        for successorState, action in getSuccessors(currState):
+            if tuple(successorState) not in visited:
+                successorNode = Node(successorState, parent=currNode, action=action)
+                queue.append(successorNode)
+        expanded += 1   
+
+    return None, expanded   
+
+#UCS implementation
+def uniformCostSearch(initialState, goalState):
+    initialNode = Node(initialState, cost=0)
+    priorityQueue = []  #Priority queue based on cost
+    heapq.heappush(priorityQueue, initialNode)
+    
+    visited = set()
+    expanded = 0   
+
+    while priorityQueue:
+        currNode = heapq.heappop(priorityQueue)  #Pop node with the lowest cost
+        currState = currNode.state
+
+        if currState == goalState:
+            return currNode, expanded 
+
+        visited.add(tuple(currState))
+        for successorState, action in getSuccessors(currState):
+            if tuple(successorState) not in visited:
+                newCost = currNode.cost + 1  #Assuming cost for every move is 1
+                successorNode = Node(successorState, parent=currNode, action=action, cost=newCost)
+                heapq.heappush(priorityQueue, successorNode)
+        expanded += 1   
+
+    return None, expanded   
+
+#Manhattan distance heuristic
+def manhattanDistance(state, goalState):
+    distance = 0
+    for i in range(1, 9):  #Ignore 0 (blank space)
+        currIndex = state.index(i)
+        goalIndex = goalState.index(i)
+     
+        currRow, currCol = currIndex // 3, currIndex % 3
+        goalRow, goalCol = goalIndex // 3, goalIndex % 3
+        
+        distance += abs(currRow - goalRow) + abs(currCol - goalCol)
+    return distance
+
+#Distance (Euclidean distance) heuristic same idea as above by distance is diff of course
+def straightLineDistance(state, goalState):
+    distance = 0
+    for i in range(1, 9): 
+        currIndex = state.index(i)
+        goalIndex = goalState.index(i)
+        currRow, currCol = currIndex // 3, currIndex % 3
+        goalRow, goalCol = goalIndex // 3, goalIndex % 3
+        #Euclidean distance between the curr position and goal position
+        distance += math.sqrt((currRow - goalRow) ** 2 + (currCol - goalCol) ** 2)
+    return distance
+
+#A* Search implementation, which is basically ucs with a heuristic
+def aStarSearch(initialState, goalState, heuristicFunc=manhattanDistance): #heuristicFunc is defaulted to manhattandistance if no heuristic is provided
+    initialNode = Node(initialState, cost=0, heuristic=heuristicFunc(initialState, goalState))
+    priorityQueue = []  #Priority queue use total cost (f = g + h)
+    heapq.heappush(priorityQueue, initialNode)
+    
+    visited = set()
+    expanded = 0  
+
+    while priorityQueue:
+        currNode = heapq.heappop(priorityQueue)  #Pop node with the lowest f = g + h
+        currState = currNode.state
+
+        if currState == goalState:
+            return currNode, expanded  
+        visited.add(tuple(currState))
+
+        for successorState, action in getSuccessors(currState):
+            if tuple(successorState) not in visited:
+                gCost = currNode.cost + 1  #Uniform cost for each move is 1
+                hCost = heuristicFunc(successorState, goalState)
+                successorNode = Node(successorState, parent=currNode, action=action, cost=gCost, heuristic=hCost)
+                heapq.heappush(priorityQueue, successorNode)
+
+        expanded += 1  
+
+    return None, expanded  
+
+if __name__ == "__main__":
+    goalState = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    startState = readFile("input.txt")
+    
+    print("BFS:")
+    goalNode, expansions = bfs(startState, goalState)
+    if goalNode:
+        actions = reconstructPath(goalNode)
+        print(",".join(actions))  
+        print(f"Nodes expanded: {expansions}")
+    else:
+        print("No solution found.")
+    
+    print("\nDFS:")
+    goalNode, expansions = dfs(startState, goalState)
+    if goalNode:
+        actions = reconstructPath(goalNode)
+        print(",".join(actions))
+        print(f"Nodes expanded: {expansions}")
+    else:
+        print("No solution found.")
+    
+    print("\nUCS:")
+    goalNode, expansions = uniformCostSearch(startState, goalState)
+    if goalNode:
+        actions = reconstructPath(goalNode)
+        print(",".join(actions))  
+        print(f"Nodes expanded: {expansions}")
+    else:
+        print("No solution found.")
+
+    print("\nA* Search with Manhattan Distance:")
+    goalNode, expansions = aStarSearch(startState, goalState, manhattanDistance)
+    if goalNode:
+        actions = reconstructPath(goalNode)
+        print(",".join(actions))  #Print the sequence of actions with commas separating them
+        print(f"Nodes expanded: {expansions}")
+    else:
+        print("No solution found.")
+
+    print("\nA* Search with Straight-Line Distance:")
+    goalNode, expansions = aStarSearch(startState, goalState, straightLineDistance)
+    if goalNode:
+        actions = reconstructPath(goalNode)
+        print(",".join(actions))  #Print the sequence of actions with commas separating them
+        print(f"Nodes expanded: {expansions}")
+    else:
+        print("No solution found.")

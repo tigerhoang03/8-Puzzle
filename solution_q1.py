@@ -1,6 +1,6 @@
 import heapq  #For the priority queue
 from collections import deque
-import math  #For square root calculation (Euclidean distance)
+import math  #For square root calculation 
 
 #Andrew Hoang ath5428
 #Plan: read the input.txt file and turn it into a 2D list
@@ -100,7 +100,7 @@ def dfs(initialState, goalState):
     expanded = 0   
 
     while stack:
-        currNode = stack.pop()  #Using stack (LIFO)
+        currNode = stack.pop()  
         currState = currNode.state
 
         if currState == goalState: #check for completion

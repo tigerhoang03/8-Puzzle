@@ -1,0 +1,13 @@
+Q1.2a - 46672 nodes were expanded to find the solution
+Q1.2b - 79388 nodes were expanded to find the solution
+Q1.2c - 56823 nodes were expanded to find the solution
+Q1.2d - 287 nodes were expanded to find the solution
+Q1.2e - 395 nodes were expanded to find the solution
+
+-----------------------------------------------------------
+
+Q2.2a - 9 nodes were expanded to find the solution
+Q2.2b - 15 nodes were expanded to find the solution
+Q2.2c - 30 nodes were expanded to find the solution
+Q2.2d - 10 nodes were expanded to find the solution
+Q2.2e - 21 nodes were expanded to find the solution

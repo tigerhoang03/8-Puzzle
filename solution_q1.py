@@ -1,10 +1,9 @@
 import heapq  #For the priority queue
 from collections import deque
 import math  #For square root calculation 
-
 #Andrew Hoang ath5428
 #Plan: read the input.txt file and turn it into a 2D list
-#Similarly, the goal state can be the same too
+#Note: I used geeksforgeeks to help with my bfs dfs algo implementation as it has been a while
 
 """---------------------------------------------------------------------------------------------------------------------------"""
 
@@ -189,7 +188,7 @@ def straightLineDistance(state, goalState):
     return distance
 
 #A* Search implementation, which is basically ucs with a heuristic
-def aStarSearch(initialState, goalState, heuristicFunc=manhattanDistance): #heuristicFunc is defaulted to manhattandistance if no heuristic is provided
+def aStarSearch(initialState, goalState, heuristicFunc=manhattanDistance): #defaulted to manhattandistance if no heuristic is provided
     initialNode = Node(initialState, cost=0, heuristic=heuristicFunc(initialState, goalState))
     priorityQueue = []  #Priority queue use total cost (f = g + h)
     heapq.heappush(priorityQueue, initialNode)
@@ -220,7 +219,16 @@ if __name__ == "__main__":
     goalState = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     startState = readFile("input.txt")
     
-    print("BFS:")
+    print("The actual returned path by DFS:")
+    goalNode, expansions = dfs(startState, goalState)
+    if goalNode:
+        actions = reconstructPath(goalNode)
+        print(",".join(actions))
+        print(f"Nodes expanded: {expansions}")
+    else:
+        print("No solution found.")
+        
+    print("\nThe actual returned path by BFS:")
     goalNode, expansions = bfs(startState, goalState)
     if goalNode:
         actions = reconstructPath(goalNode)
@@ -229,16 +237,7 @@ if __name__ == "__main__":
     else:
         print("No solution found.")
     
-    print("\nDFS:")
-    goalNode, expansions = dfs(startState, goalState)
-    if goalNode:
-        actions = reconstructPath(goalNode)
-        print(",".join(actions))
-        print(f"Nodes expanded: {expansions}")
-    else:
-        print("No solution found.")
-    
-    print("\nUCS:")
+    print("\nThe actual returned path by UCS:")
     goalNode, expansions = uniformCostSearch(startState, goalState)
     if goalNode:
         actions = reconstructPath(goalNode)
@@ -247,7 +246,7 @@ if __name__ == "__main__":
     else:
         print("No solution found.")
 
-    print("\nA* Search with Manhattan Distance:")
+    print("\nThe actual returned path by A* Search with Manhattan Distance:")
     goalNode, expansions = aStarSearch(startState, goalState, manhattanDistance)
     if goalNode:
         actions = reconstructPath(goalNode)
@@ -256,7 +255,7 @@ if __name__ == "__main__":
     else:
         print("No solution found.")
 
-    print("\nA* Search with Straight-Line Distance:")
+    print("\nThe actual returned path by A* Search with Straight-Line Distance:")
     goalNode, expansions = aStarSearch(startState, goalState, straightLineDistance)
     if goalNode:
         actions = reconstructPath(goalNode)

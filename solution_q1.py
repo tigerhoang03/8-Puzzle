@@ -224,7 +224,7 @@ if __name__ == "__main__":
     if goalNode:
         actions = reconstructPath(goalNode)
         print(",".join(actions))
-        print(f"Nodes expanded: {expansions}")
+        #print(f"Nodes expanded: {expansions}")
     else:
         print("No solution found.")
         
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     if goalNode:
         actions = reconstructPath(goalNode)
         print(",".join(actions))  
-        print(f"Nodes expanded: {expansions}")
+        #print(f"Nodes expanded: {expansions}")
     else:
         print("No solution found.")
     
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     if goalNode:
         actions = reconstructPath(goalNode)
         print(",".join(actions))  
-        print(f"Nodes expanded: {expansions}")
+        #print(f"Nodes expanded: {expansions}")
     else:
         print("No solution found.")
 
@@ -251,7 +251,7 @@ if __name__ == "__main__":
     if goalNode:
         actions = reconstructPath(goalNode)
         print(",".join(actions))  
-        print(f"Nodes expanded: {expansions}")
+        #print(f"Nodes expanded: {expansions}")
     else:
         print("No solution found.")
 
@@ -260,6 +260,6 @@ if __name__ == "__main__":
     if goalNode:
         actions = reconstructPath(goalNode)
         print(",".join(actions))  
-        print(f"Nodes expanded: {expansions}")
+        #print(f"Nodes expanded: {expansions}")
     else:
         print("No solution found.")

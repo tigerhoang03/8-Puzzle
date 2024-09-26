@@ -251,7 +251,7 @@ if __name__ == "__main__":
     goalNode, expansions = aStarSearch(startState, goalState, manhattanDistance)
     if goalNode:
         actions = reconstructPath(goalNode)
-        print(",".join(actions))  #Print the sequence of actions with commas separating them
+        print(",".join(actions))  
         print(f"Nodes expanded: {expansions}")
     else:
         print("No solution found.")
@@ -260,7 +260,7 @@ if __name__ == "__main__":
     goalNode, expansions = aStarSearch(startState, goalState, straightLineDistance)
     if goalNode:
         actions = reconstructPath(goalNode)
-        print(",".join(actions))  #Print the sequence of actions with commas separating them
+        print(",".join(actions))  
         print(f"Nodes expanded: {expansions}")
     else:
         print("No solution found.")
